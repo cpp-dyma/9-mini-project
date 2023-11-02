@@ -2,8 +2,8 @@
 #define __ENUM_H__
 
 enum class Joueur{
-    j1,
-    j2,
+    humain,
+    ordinateur,
     egalite
 };
 
@@ -13,5 +13,10 @@ enum class Geste{
     ciseaux
 };
 
+struct Partie{
+    Geste geste_ordinateur {0};
+    Geste geste_humain {0};
+    Joueur gagnant{Joueur::egalite};
+};
 
 #endif
