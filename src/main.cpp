@@ -8,9 +8,8 @@ using std::endl;
 using std::cin;
 
 /// @brief Définit lequel des deux joueurs a gagné le combat
-/// @param geste_j1 Geste réalisé par le 1er joueur
-/// @param geste_j2 Geste réalisé par le 2eme joueur
-/// @return Retourne le joueur vainqueur
+/// @param partie Structure constituée des éléments de la partie
+/// @return Ne retourne rien mais met à jour la partie
 void definirGagnant(Partie &partie){
 
     ///Gestion des 9 (3 x 3) cas
@@ -52,6 +51,8 @@ Geste obtenirGesteAleatoire(){
     return random_geste;
 }
 
+
+/// @brief Ecris les instructions dans la console
 void ecrireInstructions(){
     cout<<"****************************"<<endl;
     cout<<"Tapez un chiffre en fonction de votre choix"<<endl;
@@ -62,6 +63,8 @@ void ecrireInstructions(){
     cout<<"Tapez votre choix pour appuyez sur Entree : ";
 }
 
+/// @brief Ecris la transposition d'un Geste en texte
+/// @param geste Le geste à afficher
 void ecrireGeste(Geste geste){
     switch(geste){
         case Geste::pierre:
@@ -82,6 +85,8 @@ void ecrireGeste(Geste geste){
     }
 }
 
+/// @brief Affiche le resultat final de la partie dans la console
+/// @param partie 
 void ecrireResultat(Partie partie){
     cout<<"Vous avez joué ";
     ecrireGeste(partie.geste_humain);
@@ -119,6 +124,11 @@ int main(){
     do{
         ecrireInstructions();
         cin>>choix;
+
+        if(choix<0 || choix >3){
+            std::cerr<<"Ce choix n'est pas accepté..."<<endl;
+            continue;
+        }
 
         if(choix>0){
             system("cls");
