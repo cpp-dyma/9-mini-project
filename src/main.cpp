@@ -1,158 +1,173 @@
-#include "enum.h"
 #include <iostream>
-#include <stdlib.h>
 #include <time.h>
+#include <stdlib.h>
+#include "utils.h"
 
-using std::cout;
-using std::endl;
-using std::cin;
-
-/// @brief Définit lequel des deux joueurs a gagné le combat
-/// @param partie Structure constituée des éléments de la partie
-/// @return Ne retourne rien mais met à jour la partie
-void definirGagnant(Partie &partie){
-
-    ///Gestion des 9 (3 x 3) cas
-
-    if(partie.geste_humain == Geste::pierre){
-        if(partie.geste_ordinateur==Geste::pierre){
-            partie.gagnant = Joueur::egalite;
-        } else if(partie.geste_ordinateur==Geste::feuille){
-            partie.gagnant = Joueur::ordinateur;
-        } else{
-            partie.gagnant = Joueur::humain;
-        }
-    } else if(partie.geste_humain == Geste::feuille) {
-        if(partie.geste_ordinateur==Geste::pierre){
-            partie.gagnant = Joueur::humain;
-        } else if(partie.geste_ordinateur==Geste::feuille){
-            partie.gagnant = Joueur::egalite;
-        } else{
-            partie.gagnant = Joueur::ordinateur;
-        }
-    } else if(partie.geste_humain == Geste::ciseaux) {
-        if(partie.geste_ordinateur==Geste::pierre){
-            partie.gagnant = Joueur::ordinateur;
-        } else if(partie.geste_ordinateur==Geste::feuille){
-            partie.gagnant = Joueur::humain;
-        } else{
-            partie.gagnant = Joueur::egalite;
-        }
-    }
-}
-
-/// @brief Utilise l'aléatoire pour générer un des 3 gestes disponibles en aléatoire
-/// @return Retourne un geste aléatoire
-Geste obtenirGesteAleatoire(){
-    auto random_value {std::rand()};
-    auto random_1_3 {(random_value%3)};
-
-    Geste random_geste {static_cast<Geste>(random_1_3)};
-    return random_geste;
-}
-
-
-/// @brief Ecris les instructions dans la console
+/**
+ * @brief Ecrit dans la console la liste des différents choix
+ * 0 : Quitter
+ * 1 : Pierre
+ * 2 : Feuille
+ * 3 : Ciseaux
+ */
 void ecrireInstructions(){
-    cout<<"****************************"<<endl;
-    cout<<"Tapez un chiffre en fonction de votre choix"<<endl;
+    using std::cout;
+    using std::endl;
+
+    cout<<"Bienvenue dans le jeu pierre feuille ciseaux !"<<endl;
+    cout<<"Pour jouer, tapez votre choix, puis pressez la touche Entrée"<<endl;
     cout<<"** 0 pour quitter"<<endl;
     cout<<"** 1 pour pierre"<<endl;
     cout<<"** 2 pour feuille"<<endl;
     cout<<"** 3 pour ciseaux"<<endl;
-    cout<<"Tapez votre choix pour appuyez sur Entree : ";
+    cout<<"Quel est votre choix : ";
 }
 
-/// @brief Ecris la transposition d'un Geste en texte
-/// @param geste Le geste à afficher
-void ecrireGeste(Geste geste){
-    switch(geste){
-        case Geste::pierre:
-        cout<<"pierre";
+/**
+ * @brief Ecris dans la console le nom du geste passé en argument
+ * 
+ * @param geste 
+ */
+void ecrireGeste(const Geste geste){
+
+    switch (geste)
+    {
+    case Geste::pierre:
+        std::cout<<"pierre";
         break;
 
-        case Geste::feuille:
-        cout<<"feuille";
+    case Geste::feuille:
+        std::cout<<"feuille";
         break;
 
-        case Geste::ciseaux:
-        cout<<"ciseaux";
+    case Geste::ciseaux:
+        std::cout<<"ciseaux";
         break;
-
-        default:
-        cout<<"Inconnu ??";
-        break;
-    }
-}
-
-/// @brief Affiche le resultat final de la partie dans la console
-/// @param partie 
-void ecrireResultat(Partie partie){
-    cout<<"Vous avez joué ";
-    ecrireGeste(partie.geste_humain);
-    cout<<endl<<"L'ordinateur a joué ";
-    ecrireGeste(partie.geste_ordinateur);
-    cout<<endl;
     
-
-    switch(partie.gagnant){
-        case Joueur::egalite:
-        cout<<"Egalité !"<<endl;
-        break;
-
-        case Joueur::humain:
-        cout<<"Bravo vous avez gagné !"<<endl;
-        break;
-
-        case Joueur::ordinateur:
-        cout<<"Vous avez perdu..."<<endl;
-        break;
-
-        default:
-        cout<<"Joueur indéfini :-o"<<endl;
+    default:
+        std::cout<<"Geste inconnu";
         break;
     }
+}
+
+/**
+ * @brief Affiche dans la console le nom du gagnant
+ * 
+ */
+void afficherResultats(const Vainqueur vainqueur, const Geste coup_ordinateur, const Geste coup_humain, const int score_ordinateur, const int score_humain){
+
+    std::cout<<"L'humain a joué ";
+    ecrireGeste(coup_humain);
+    std::cout<<". L'ordinateur a joué ";
+    ecrireGeste(coup_ordinateur);
+    std::cout<<std::endl;
+
+    if(vainqueur==Vainqueur::egalite){
+        std::cout<<"Egalité !"<<std::endl;
+    } else {
+        std::cout<<"Le vainqueur est "<< (vainqueur==Vainqueur::ordinateur ? "l'ordinateur":"l'humain")<<std::endl;
+    }
+
+    std::cout<<"********** Résumé des scores **********"<<std::endl;
+    std::cout<<"Humain : "<<score_humain<<" points"<<std::endl;
+    std::cout<<"Ordinateur : "<<score_ordinateur<<" points"<<std::endl;
+    std::cout<<"***************************************"<<std::endl;
+}
+
+/**
+ * @brief Défini qui, de l'ordinateur ou de l'humaine a gagné
+ * 
+ * @param coup_humain : geste joué par l'humain
+ * @param coup_ordinateur : geste joué par l'ordinateur
+ * @return Vainqueur 
+ */
+Vainqueur definirGagnant(const Geste coup_humain, const Geste coup_ordinateur){
+
+    if(coup_humain == Geste::pierre){
+        if(coup_ordinateur==Geste::pierre){
+            return Vainqueur::egalite;
+        } else if(coup_ordinateur==Geste::feuille){
+            return Vainqueur::ordinateur;
+        } else if(coup_ordinateur==Geste::ciseaux){
+            return Vainqueur::humain;
+        }
+    } else if(coup_humain==Geste::feuille){
+        if(coup_ordinateur==Geste::pierre){
+            return Vainqueur::humain;
+        } else if(coup_ordinateur==Geste::feuille){
+            return Vainqueur::egalite;
+        } else if(coup_ordinateur==Geste::ciseaux){
+            return Vainqueur::ordinateur;
+        }
+    } else if(coup_humain==Geste::ciseaux){
+        if(coup_ordinateur==Geste::pierre){
+            return Vainqueur::ordinateur;
+        } else if(coup_ordinateur==Geste::feuille){
+            return Vainqueur::humain;
+        } else if(coup_ordinateur==Geste::ciseaux){
+            return Vainqueur::egalite;
+        }
+    }
+
+    std::cout<<"Coups inconnus, résultat indéfini..."<<std::endl;
+    return Vainqueur::egalite;
+}
+
+/**
+ * @brief Obtient un geste aléatoire grâce à rand()
+ * 
+ * @return Geste : geste joué par l'ordinateur
+ */
+Geste obtenirGesteAleatoire(){
+
+    auto random_value {rand()%3};
+    return static_cast<Geste>(random_value);
 }
 
 int main(){
-    /// Mélange l'aléatoire
+
+    //Mélanger l'aléatoire
     std::srand(time(nullptr));
+    //Régler le problème d'accent sur Windows
     std::setlocale(LC_ALL, ".utf8");
-    auto choix{0};
-    auto points_ordinateur{0}, points_humain{0};
+
+    int choix_utilisateur{0};
+    auto score_ordinateur{0}, score_humain{0};
 
     do{
+        //Affiche les règles
         ecrireInstructions();
-        cin>>choix;
+        std::cin>>choix_utilisateur;
 
-        if(choix<0 || choix >3){
-            std::cerr<<"Ce choix n'est pas accepté..."<<endl;
+        //Contrôle de la saisie
+        if(choix_utilisateur<0 || choix_utilisateur > 3 ){
+            std::cout<<"Saisie invalide, recommencez !"<<std::endl;
             continue;
         }
 
-        if(choix>0){
-            system("cls");
-            Geste geste_ordinateur{obtenirGesteAleatoire()};
-            Geste geste_humain{choix-1};
-
-            Partie partie{geste_ordinateur, geste_humain};
-
-            definirGagnant(partie);
-
-            if(partie.gagnant==Joueur::humain)
-                points_humain++;
-            else if(partie.gagnant==Joueur::ordinateur)
-                points_ordinateur++;
-
-            ecrireResultat(partie);
-
-            cout<<"****************************"<<endl;
-            cout<<"Récapitulatif des points :"<<endl;
-            cout<<"Vous : "<<points_humain<<endl;
-            cout<<"Ordinateur : "<<points_ordinateur<<endl;
-
+        //Sortie de la boucle en cas de 0
+        if(choix_utilisateur==0){
+            break;
         }
-    }while(choix>0);
+
+        Geste coup_humain {static_cast<Geste>(choix_utilisateur-1)};
+        Geste coup_ordinateur;
+        coup_ordinateur = obtenirGesteAleatoire();        
+
+        Vainqueur gagnant {definirGagnant(coup_humain, coup_ordinateur)};
+
+        //Incrémentation des scores
+        if(gagnant==Vainqueur::ordinateur)
+            score_ordinateur++;
+        else if(gagnant==Vainqueur::humain)
+            score_humain++;
+
+        //Nettoyage de la console
+        system("cls");
+
+        afficherResultats(gagnant, coup_ordinateur, coup_humain, score_ordinateur, score_humain);
+
+    } while(choix_utilisateur!=0);
 
     return 0;
 }
